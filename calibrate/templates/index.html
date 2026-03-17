@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pico Line Follower Calibrator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #0b0f19;
+            --glass-bg: rgba(17, 25, 40, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.125);
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, var(--bg));
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 40px 0;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 10px 0;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 0;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border: none;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            flex-grow: 1;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger);
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 16px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+        }
+
+        .error-display {
+            grid-column: 1 / -1;
+            padding: 24px;
+            margin-top: 10px;
+            border-radius: 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-display.lost {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .error-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(to right, #34d399, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .error-display.lost .error-value {
+            background: linear-gradient(to right, #f87171, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PID Calibration Station</h1>
+            <p style="color: var(--text-muted);">Real-time telemetry and control over UART bridging Wi-Fi</p>
+        </div>
+
+        <div class="card">
+            <h2><div class="status-dot" id="conn-dot"></div> Connection</h2>
+            <div class="flex-row">
+                <div class="form-group" style="flex-grow: 1; margin-bottom: 0;">
+                    <label>UART Port (Pi 4B local port)</label>
+                    <input type="text" id="port" value="/dev/serial0">
+                </div>
+                <button class="btn btn-primary" id="btn-connect" onclick="toggleConnect()">Connect</button>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" style="flex: 1;" onclick="sendCommand('START')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Start
+                </button>
+                <button class="btn btn-danger" style="flex: 1;" onclick="sendCommand('STOP')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                    Stop
+                </button>
+            </div>
+            
+            <div class="error-display" id="error-box">
+                <div class="metric-label">Tracking Error</div>
+                <div class="error-value" id="error-val">0.00</div>
+            </div>
+
+            <div class="dashboard">
+                <div class="metric">
+                    <div class="metric-label">Cur. Kp</div>
+                    <div class="metric-value" id="cur-kp">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Cur. Ki</div>
+                    <div class="metric-value" id="cur-ki">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Cur. Kd</div>
+                    <div class="metric-value" id="cur-kd">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"></path></svg> PID Tuning</h2>
+            
+            <div class="slider-group">
+                <div class="slider-container">
+                    <div class="slider-label"><span>Kp (Proportional)</span> <span id="lbl-kp">15.0</span></div>
+                    <input type="range" id="kp" min="0" max="50" step="0.1" value="15.0" oninput="updateLabel('kp')">
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-container">
+                    <div class="slider-label"><span>Ki (Integral)</span> <span id="lbl-ki">0.0</span></div>
+                    <input type="range" id="ki" min="0" max="20" step="0.1" value="0.0" oninput="updateLabel('ki')">
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-container">
+                    <div class="slider-label"><span>Kd (Derivative)</span> <span id="lbl-kd">5.0</span></div>
+                    <input type="range" id="kd" min="0" max="30" step="0.1" value="5.0" oninput="updateLabel('kd')">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="sendPID()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10.01 10.01 0 0 1-10 10 10.01 10.01 0 0 1-10-10 10.01 10.01 0 0 1 10-10c2.4 0 4.64.84 6.36 2.24"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Deploy Parameters
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let isConnected = false;
+
+        function updateLabel(id) {
+            document.getElementById('lbl-' + id).innerText = parseFloat(document.getElementById(id).value).toFixed(1);
+        }
+
+        async function toggleConnect() {
+            if (isConnected) {
+                await fetch('/api/disconnect', { method: 'POST' });
+                isConnected = false;
+                document.getElementById('btn-connect').innerText = 'Connect';
+                document.getElementById('btn-connect').className = 'btn btn-primary';
+                document.getElementById('conn-dot').className = 'status-dot';
+            } else {
+                const port = document.getElementById('port').value;
+                const res = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({port})
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    isConnected = true;
+                    document.getElementById('btn-connect').innerText = 'Disconnect';
+                    document.getElementById('btn-connect').className = 'btn';
+                    document.getElementById('conn-dot').className = 'status-dot connected';
+                } else {
+                    alert('Connection failed: ' + data.message);
+                }
+            }
+        }
+
+        async function sendCommand(cmd) {
+            if (!isConnected) return;
+            await fetch('/api/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({cmd})
+            });
+        }
+
+        async function sendPID() {
+            if (!isConnected) {
+                alert("Please connect first.");
+                return;
+            }
+            const p = parseFloat(document.getElementById('kp').value);
+            const i = parseFloat(document.getElementById('ki').value);
+            const d = parseFloat(document.getElementById('kd').value);
+            
+            await fetch('/api/pid', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({p, i, d})
+            });
+            
+            const btn = document.querySelector('button[onclick="sendPID()"]');
+            const oldText = btn.innerHTML;
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10.01 10.01 0 0 1-10 10 10.01 10.01 0 0 1-10-10 10.01 10.01 0 0 1 10-10c2.4 0 4.64.84 6.36 2.24"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Deployed!';
+            btn.classList.replace('btn-primary', 'btn-success');
+            setTimeout(() => {
+                btn.innerHTML = oldText;
+                btn.classList.replace('btn-success', 'btn-primary');
+            }, 1000);
+        }
+
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                
+                if (data.connected && !isConnected) {
+                    isConnected = true;
+                    document.getElementById('btn-connect').innerText = 'Disconnect';
+                    document.getElementById('btn-connect').className = 'btn';
+                    document.getElementById('conn-dot').className = 'status-dot connected';
+                } else if (!data.connected && isConnected) {
+                    isConnected = false;
+                    document.getElementById('btn-connect').innerText = 'Connect';
+                    document.getElementById('btn-connect').className = 'btn btn-primary';
+                    document.getElementById('conn-dot').className = 'status-dot';
+                }
+
+                if (data.connected && data.telemetry) {
+                    const t = data.telemetry;
+                    document.getElementById('cur-kp').innerText = t.kp.toFixed(1);
+                    document.getElementById('cur-ki').innerText = t.ki.toFixed(1);
+                    document.getElementById('cur-kd').innerText = t.kd.toFixed(1);
+                    
+                    const box = document.getElementById('error-box');
+                    if (t.line_lost) {
+                        document.getElementById('error-val').innerText = 'LOST';
+                        box.className = 'error-display lost';
+                    } else {
+                        document.getElementById('error-val').innerText = t.error.toFixed(2);
+                        box.className = 'error-display';
+                    }
+                }
+            } catch (e) {
+                // Ignore silent fetch failures
+            }
+        }, 100);
+    </script>
+</body>
+</html>
