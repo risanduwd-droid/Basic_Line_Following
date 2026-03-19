@@ -22,62 +22,36 @@ set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
-
-# Set Ninja build tool location for Windows
-if(WIN32)
-    set(CMAKE_MAKE_PROGRAM "${USERHOME}/.pico-sdk/ninja/v1.12.1/ninja.exe" CACHE FILEPATH "Ninja executable")
-endif()
 # ====================================================================================
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(PIDCalibrator C CXX ASM)
+project(Calibration C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-# Include all source files from src/
 
-add_executable(PIDCalibrator
-        calibrate_main.cpp
-        src/RaykhaS8.cpp
-        src/RobotPID.cpp
-        src/robot_2wd.cpp
-)
+add_executable(Calibration Calibration.cpp )
 
-pico_set_program_name(PIDCalibrator "PIDCalibrator")
-pico_set_program_version(PIDCalibrator "0.1")
-
-# Generate PIO headers for encoders (when encoder.pio is created)
-# pico_generate_pio_header(LineFolower ${CMAKE_CURRENT_LIST_DIR}/encoder.pio)
+pico_set_program_name(Calibration "Calibration")
+pico_set_program_version(Calibration "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-# UART is reserved for Pi 4B communication (GP0/GP1)
-pico_enable_stdio_uart(PIDCalibrator 0)
-pico_enable_stdio_usb(PIDCalibrator 1)
+pico_enable_stdio_uart(Calibration 0)
+pico_enable_stdio_usb(Calibration 0)
 
 # Add the standard library to the build
-target_link_libraries(PIDCalibrator
-        pico_stdlib
-        hardware_gpio
-        hardware_pwm
-        hardware_adc
-        hardware_i2c
-        hardware_irq)
+target_link_libraries(Calibration
+        pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(PIDCalibrator PRIVATE
+target_include_directories(Calibration PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/headers
 )
 
-# Add any user requested libraries
-target_link_libraries(PIDCalibrator 
-        hardware_pio
-        )
-
-pico_add_extra_outputs(PIDCalibrator)
+pico_add_extra_outputs(Calibration)
 
