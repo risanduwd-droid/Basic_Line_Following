@@ -1,17 +1,27 @@
 #include "../headers/RobotPID.h"
 
 RobotPID::RobotPID() {
+    // Default values matched with the previous hardcoded values
+    Kp = 15.0f;
+    Ki = 0.0f;
+    Kd = 5.0f;
     previousError = 0.0f;
     integral = 0.0f;
 }
 
-std::vector<int> RobotPID::calculateSpeeds(float error, int baseSpeed) {
-    // Team Leader's request: K values are now safely inside the function
-    float Kp = 15.0f;
-    float Ki = 0.0f;   // Integral disabled for now
-    float Kd = 5.0f;
+void RobotPID::setTunings(float p, float i, float d) {
+    Kp = p;
+    Ki = i;
+    Kd = d;
+}
 
-    // Do the standard PID math
+void RobotPID::reset() {
+    integral = 0.0f;
+    previousError = 0.0f;
+}
+
+std::vector<int> RobotPID::calculateSpeeds(float error, int baseSpeed) {
+    // Standard PID math
     float P = Kp * error;
     integral += error;
     float I = Ki * integral;

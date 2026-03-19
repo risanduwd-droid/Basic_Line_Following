@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 
+<<<<<<< HEAD
 // Motor PWM Pin Assignments (from architecture)
 #define LEFT_MOTOR_PWM_PIN 20   // GP20 - Left motor speed
 #define RIGHT_MOTOR_PWM_PIN 21  // GP21 - Right motor speed (was GP22, using 21 for consistency)
@@ -32,13 +33,41 @@ public:
     void stop();
 
     // Helper movement functions for convenient control
+=======
+// Team Endurance Architecture: 4 Pins for 2 IBT-2 Drivers
+#define LEFT_MOTOR_L_PWM 20   // Left Motor Forward
+#define LEFT_MOTOR_R_PWM 21   // Left Motor Reverse
+#define RIGHT_MOTOR_L_PWM 22  // Right Motor Forward
+#define RIGHT_MOTOR_R_PWM 28  // Right Motor Reverse (ADC2 used as digital PWM)
+
+class MotorDriver {
+private:
+    uint slice_L_F, slice_L_R;
+    uint slice_R_F, slice_R_R;
+
+public:
+    MotorDriver() {}
+
+    void init();
+    void drive(int leftSpeed, int rightSpeed);
+    void stop();
+    
+    // Helpers
+>>>>>>> local-changes
     void move_forward(int speed);
     void move_backward(int speed);
     void turn_left(int speed);
     void turn_right(int speed);
+<<<<<<< HEAD
 
     // Demo function to test robot movements
     void demo_movements(int speed);
 };
 
 #endif
+=======
+    void demo_movements(int speed);
+};
+
+#endif
+>>>>>>> local-changes

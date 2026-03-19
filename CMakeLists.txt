@@ -27,40 +27,33 @@ endif()
 if(WIN32)
     set(CMAKE_MAKE_PROGRAM "${USERHOME}/.pico-sdk/ninja/v1.12.1/ninja.exe" CACHE FILEPATH "Ninja executable")
 endif()
-# ====================================================================================
+
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
-# Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(LineFolower C CXX ASM)
+project(PIDCalibrator C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
-# Include all source files from src/
-
-add_executable(LineFolower
-        LineFolower.cpp
-        src/RaykhaS8.cpp
-        src/RobotPID.cpp
-        src/robot_2wd.cpp
+# --- FIXED: Target name is now consistently PIDCalibrator ---
+add_executable(PIDCalibrator
+    calibrate_main.cpp
+    src/RaykhaS8.cpp
+    src/RobotPID.cpp
+    src/robot_2wd.cpp
 )
 
-pico_set_program_name(LineFolower "LineFolower")
-pico_set_program_version(LineFolower "0.1")
+pico_set_program_name(PIDCalibrator "PIDCalibrator")
+pico_set_program_version(PIDCalibrator "0.1")
 
-# Generate PIO headers for encoders (when encoder.pio is created)
-# pico_generate_pio_header(LineFolower ${CMAKE_CURRENT_LIST_DIR}/encoder.pio)
+# Enable USB output for your calibration menu, disable UART so it doesn't spam the Pi 4B
+pico_enable_stdio_uart(PIDCalibrator 0)
+pico_enable_stdio_usb(PIDCalibrator 1)
 
-# Modify the below lines to enable/disable output over UART/USB
-# UART is reserved for Pi 4B communication (GP0/GP1)
-pico_enable_stdio_uart(LineFolower 0)
-pico_enable_stdio_usb(LineFolower 1)
-
-# Add the standard library to the build
-target_link_libraries(LineFolower
+# Link the standard libraries to PIDCalibrator
+target_link_libraries(PIDCalibrator
         pico_stdlib
         hardware_gpio
         hardware_pwm
@@ -68,16 +61,9 @@ target_link_libraries(LineFolower
         hardware_i2c
         hardware_irq)
 
-# Add the standard include files to the build
-target_include_directories(LineFolower PRIVATE
+target_include_directories(PIDCalibrator PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/headers
 )
 
-# Add any user requested libraries
-target_link_libraries(LineFolower 
-        hardware_pio
-        )
-
-pico_add_extra_outputs(LineFolower)
-
+pico_add_extra_outputs(PIDCalibrator)
