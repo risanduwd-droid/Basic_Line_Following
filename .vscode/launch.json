@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flash PIDCalibrator (UF2)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "echo 'Build + flash finished. If it failed, ensure Pico is mounted as RPI-RP2.'",
+            "preLaunchTask": "Flash PIDCalibrator UF2"
+        }
+    ]
+}
